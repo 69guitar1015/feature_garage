@@ -33,3 +33,13 @@ garage.save(df1, table='df1', verbose=0)
 # Load
 df2 = garage.load(table='df2')
 ```
+
+## How to save
+`FeatureGarage` is just saving each column as array in npy format.
+`table` is just a directory and `column`(`feature`) is just a npy file.
+
+**categorical features may be saved as 'object'**
+
+## Future Work
+- Prallel r/w
+- seemless loading for categorical features

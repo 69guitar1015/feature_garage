@@ -70,3 +70,14 @@ class Garage:
 
     def columns(self, table: str) -> List[str]:
         return [b64_decode(path.stem) for path in self.column_paths(table)]
+
+    def drop_columns(self, table: str, columns: List[str]):
+        tablepath = self.dirpath/b64_encode(table)
+
+        for column in columns:
+            path = tablepath/f"{b64_encode(column)}.npy"
+
+            if not path.exists():
+                self.logger.warning(f'{column} column doesn\'t exist')
+
+            path.unlink()

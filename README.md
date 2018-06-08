@@ -32,6 +32,9 @@ garage.save(df1, table='df1', verbose=0)
 
 # Load
 df2 = garage.load(table='df2')
+
+# Drop columns
+garage.drop_columns(table='df1', columns=['f1', 'f2'])
 ```
 
 ## How to save

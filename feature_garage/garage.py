@@ -16,14 +16,31 @@ def b64_decode(s: str) -> str:
     return urlsafe_b64decode(b).decode('utf-8')
 
 
+def to_minimum_dtype(series):
+    dtype = "".join([x for x in series.dtype.name if x.isalpha()])
+    if dtype in ['int', 'uint']:
+        info_func = np.iinfo
+    elif dtype in ['float']:
+        info_func = np.finfo
+    else:
+        # return if not numerous type
+        return series
+
+    dtypes = series.apply(np.min_scalar_type).unique().tolist()
+    sizes = [info_func(x).bits for x in dtypes]
+    max_id = np.argmax(sizes)
+    min_dtype = dtypes[max_id]
+    return series.astype(min_dtype)
+
 class Garage:
     def __init__(self, dirpath: str):
         self.dirpath = pathlib.Path(dirpath)
         self.logger = logging.getLogger('FeatureGarage')
 
-    def save(self, df: pd.DataFrame, table: str,
-             columns: List[str]=None, overwrite: bool=False, verbose: int=1):
+    def save(self, df: pd.DataFrame, table: str, columns: List[str]=None,
+             minimize_dtype: bool=True, overwrite: bool=False, verbose: int=1):
         tablepath = self.dirpath/b64_encode(table)
+
         existings = self.columns(table)
 
         if not tablepath.exists():
@@ -46,7 +63,11 @@ class Garage:
                 if not overwrite:
                     continue
 
-            np.save(tablepath/f"{b64_encode(column)}.npy", df[column])
+            col = df[column]
+            if minimize_dtype:
+                col = col.pipe(to_minimum_dtype)
+
+            np.save(tablepath/f"{b64_encode(column)}.npy", col)
 
     def load(self, table: str, columns: List[str]=None) -> pd.DataFrame:
         df = {}

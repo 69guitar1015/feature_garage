@@ -29,6 +29,8 @@ garage.save(df1, table='df1', columns=['f1', 'f2'])
 garage.save(df1, table='df1', overwrite=True)
 # Make warning silent
 garage.save(df1, table='df1', verbose=0)
+# Garage.save reduces each column data size on default using np.min_scalar_dtype
+garage.save(df1, table='df1', minimize_dtype=False)
 
 # Load
 df2 = garage.load(table='df2')
